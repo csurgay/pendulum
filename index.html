@@ -16,10 +16,19 @@
             rod1Length: 170,    // Length of first rod
             rod2Length: 160,     // Length of second rod
             rod1Speed: 0.10,    // Rotation speed of first rod
-            rod2Speed: 0.1415926535,    // Rotation speed of second rod
-            traceLength: 10000,   // Number of points to keep in the trace
-            canvasSize: 700     // Canvas width and height
+            rod2Speed: 0.01415926535,    // Rotation speed of second rod
+            traceLength: 6600,   // Number of points to keep in the trace
+            canvasSize: 700,     // Canvas width and height
+            pointsPerFrame: 100,  // number of points added for the next frame (speed of animation)
+            showRods: true
         };
+
+        const paramsArray = [
+            [170, 160, 0.10, 0.01415926535, 6600, 100],
+            [170, 160, 0.67, 0.273, 1887, 100],
+            [170, 160, 0.9726, 0.0344, 1538, 100],
+            [170, 160, 0.075, 0.78, 1200, 100],
+        ];
 
         // Setup canvas
         const canvas = document.getElementById('canvas');
@@ -28,27 +37,68 @@
         canvas.height = params.canvasSize;
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
+        document.addEventListener("keyup",keyup);
 
         // Track trace points
         let tracePoints = [];
         let angle1 = 0;
         let angle2 = 0;
 
+        function keyup(event) {
+            console.log("key: "+event.key);
+            if (event.key=="r") params.showRods = !params.showRods;
+            if (event.key=="0") fillParams(paramsArray[0]);
+            if (event.key=="1") fillParams(paramsArray[1]);
+            if (event.key=="2") fillParams(paramsArray[2]);
+            if (event.key=="3") fillParams(paramsArray[3]);
+            if (event.key==" ") {
+                params.rod1Speed=Math.random();
+                params.rod2Speed=Math.random();
+                params.traceLength=Math.floor(2000*Math.random());
+            }
+        }
+
+        function fillParams(p) {
+            console.log(p);
+            tracePoints=[];
+            params.rod1Length=p[0];
+            params.rod2Length=p[1];
+            params.rod1Speed=p[2];
+            params.rod2Speed=p[3];
+            params.traceLength=p[4];
+            params.pointsPerFrame=p[5];
+        }
+
         function animate() {
             // Clear canvas
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Calculate rod endpoints
-            const x1 = centerX + Math.cos(angle1) * params.rod1Length;
-            const y1 = centerY + Math.sin(angle1) * params.rod1Length;
-            const x2 = x1 + Math.cos(angle2) * params.rod2Length;
-            const y2 = y1 + Math.sin(angle2) * params.rod2Length;
+            var x1,x2,y1,y2;
+
+            for (let i=0; i<params.pointsPerFrame; i++) {
+
+                // Calculate rod endpoints
+                x1 = centerX + Math.cos(angle1) * params.rod1Length;
+                y1 = centerY + Math.sin(angle1) * params.rod1Length;
+                x2 = x1 + Math.cos(angle2) * params.rod2Length;
+                y2 = y1 + Math.sin(angle2) * params.rod2Length;
+
+                // Add new trace point
+                tracePoints.push({x: x2, y: y2});
+                while (tracePoints.length > params.traceLength && tracePoints.length > params.pointsPerFrame) {
+                    tracePoints.shift();
+                }
+
+                // Update angles
+                angle1 += params.rod1Speed;
+                angle2 += params.rod2Speed;
+            }
 
             // Draw trace
             ctx.beginPath();
             ctx.strokeStyle = 'rgba(200, 0, 0, 0.5)';
-            for (let i = 0; i < tracePoints.length; i++) {
+            for (let i = 0; i < params.traceLength; i++) if (i<tracePoints.length) {
                 const point = tracePoints[i];
                 if (i === 0) {
                     ctx.moveTo(point.x, point.y);
@@ -59,23 +109,15 @@
             ctx.stroke();
 
             // Draw rods
-            ctx.beginPath();
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-
-            // Add new trace point
-            tracePoints.push({x: x2, y: y2});
-            if (tracePoints.length > params.traceLength) {
-                tracePoints.shift();
+            if (params.showRods) {
+                ctx.beginPath();
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
             }
-
-            // Update angles
-            angle1 += params.rod1Speed;
-            angle2 += params.rod2Speed;
 
             requestAnimationFrame(animate);
         }
