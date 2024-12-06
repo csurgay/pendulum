@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rotating Rods Animation</title>
+    <style>
+        body { 
+            margin: 0px;
+        }
+        canvas {
+            border: 0px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        // Setup canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.translate(0.5,0.5);
+        document.addEventListener("keyup",keyup);
+
+        // Adjustable parameters
+        const params = {
+            lengths: [0,0,0],    // length of rods
+            speeds: [0,0,0],     // sotation speed rods
+            traceLength: 5144,   // points to keep trace
+            canvasSize: 800,     // canvas width and height
+            pointsPerFrame: 100, // animation speed
+            showRods: false,     // show rods on/off
+            showParams: true,    // show params on/off
+        };
+
+        const paramsArray = [
+            [ 57, 98,115, 0.7005,0.9377,0.8191, 5144],
+            [ 41,103, 42, 0.1288,0.6725,0.0521, 1162],
+            [120,110,100, 0.7192,0.1661,0.0970, 6000],
+            [120,110,100, 0.5859,0.3908,0.0970, 4000],
+            [120,110,100, 0.9491,0.0943,0.5702, 4000],
+            [120,110,100, 0.8430,0.2536,0.4066, 4000],
+            [120,110,100, 0.8293,0.3958,0.3557, 4500],
+            [120,110,100, 0.0825,0.8394,0.1274, 4888],
+            [120,110,100, 0.1869,0.2829,0.0020, 5500],
+            [120,110,100, 0.1257,0.2531,0.8203, 5000],
+            [120,110,100, 0.7560,0.0587,0.4183, 3629],
+            [120,110,100, 0.6715,0.5785,0.7181, 6000],
+            [120,110,100, 0.1738,0.8812,0.5799, 5000],
+            [120,110,100, 0.0459,0.0303,0.7239, 6000],
+            [120,110,100, 0.4906,0.1704,0.9403, 3700],
+            [120,110,100, 0.5182,0.2690,0.6720, 6000],
+            [120,110,100, 0.3313,0.1815,0.5861, 6000],
+            [120,110,100, 0.1373,0.9311,0.0895, 4500],
+            [120,110,100, 0.5746,0.0108,0.0098, 5000],
+        ];
+
+        // Globals
+        let tracePoints = [];
+        let angles = [0, 0, 0];
+        let lengths = [100,100,100];
+        fillParams(paramsArray[0]);
+        animate();
+
+        // clear screen
+        function clearScreen() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            params.canvasSize = Math.min(canvas.width, canvas.height)-15;
+            centerX = canvas.width / 2;
+            centerY = canvas.height / 2 - 10;
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function keyup(event) {
+            if (event.key=="R") params.showRods = !params.showRods;
+            else if (event.key==" ") {
+                params.speeds.forEach( function(item,index,arr) {
+                    arr[index]=Math.random();
+                } )
+                params.lengths.forEach( function(item,index,arr) {
+                    arr[index]=Math.floor(150*Math.random());
+                } )
+                params.traceLength=Math.floor(6000*Math.random());
+            }
+            else if (event.key>="a" && event.key<="r") {
+                let c = event.key.charCodeAt(0)-97;
+                fillParams(paramsArray[c]);
+            }
+        }
+
+        function fillParams(p) {
+            tracePoints=[];
+            let ind=0;
+            params.lengths.forEach( function(item,index,arr) {
+                arr[index]=p[ind++];
+            })
+            params.speeds.forEach( function(item,index,arr) {
+                arr[index]=p[ind++];
+            })
+            params.traceLength=p[ind++];
+            angles.forEach( function(item,index,arr) {
+                arr[index]=0;
+            })
+        }
+
+        function animate() {
+            // Clear canvas
+            clearScreen();
+
+            var xs=[],ys=[],xEnd,yEnd;
+            
+            // Update rod lengths for canvas size
+            let sum = 0; params.lengths.forEach((item) => sum += item);
+            lengths.forEach( function(item,index,arr) {
+                arr[index]=Math.floor(params.lengths[index]*params.canvasSize/2/sum);
+            });
+
+            for (let i=0; i<params.pointsPerFrame; i++) {
+
+                // Calculate rod endpoints
+                xs[0] = centerX + Math.cos(angles[0]) * lengths[0];
+                ys[0] = centerY + Math.sin(angles[0]) * lengths[0];
+                for (let i=1; i<lengths.length; i++) {
+                    xs[i] = xs[i-1] + Math.cos(angles[i]) * lengths[i];
+                    ys[i] = ys[i-1] + Math.sin(angles[i]) * lengths[i];
+                    xEnd=xs[i]; yEnd=ys[i];
+                }
+
+                // Add new trace point
+                tracePoints.push({x: xEnd, y: yEnd});
+                while (tracePoints.length > params.traceLength && tracePoints.length > params.pointsPerFrame) {
+                    tracePoints.shift();
+                }
+
+                // Update angles
+                angles.forEach( function(item,index,arr) {
+                    arr[index]+=params.speeds[index];
+                })
+            }
+
+            // Draw trace
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(200, 0, 0, 0.5)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < params.traceLength; i++) if (i<tracePoints.length) {
+                const point = tracePoints[i];
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            }
+            ctx.stroke();
+
+            // Write params
+            ctx.beginPath();
+            ctx.fillStyle="black";
+            ctx.font="16px Arial";
+            let iy=0, dy=20;
+            params.speeds.forEach( item => ctx.fillText(item,10,dy+15*++iy));
+            ctx.fillText(params.traceLength,10,dy+15*++iy);
+
+            // Draw rods
+            if (params.showRods) {
+                ctx.beginPath();
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.moveTo(centerX, centerY);
+                xs.forEach( function(item,index) {
+                    ctx.lineTo(xs[index],ys[index]);
+                })
+                ctx.stroke();
+            }
+
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html> 
