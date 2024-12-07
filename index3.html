@@ -19,7 +19,11 @@
         const ctx = canvas.getContext('2d');
         ctx.translate(0.5,0.5);
         document.addEventListener("keyup",keyup);
-
+        window.addEventListener("keydown", function(e) {
+            if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+                e.preventDefault();
+            }
+        }, false);
         // Adjustable parameters
         const params = {
             lengths: [0,0,0],    // length of rods
@@ -31,7 +35,11 @@
             showParams: true,    // show params on/off
         };
 
+        let paramsIndex=0;
+
         const paramsArray = [
+            [105,  3, 87, 0.6395,0.1470,0.3388, 1000],
+            [ 79,100, 20, 0.5249,0.0340,0.4062, 3000],
             [ 57, 98,115, 0.7005,0.9377,0.8191, 5144],
             [ 41,103, 42, 0.1288,0.6725,0.0521, 1162],
             [120,110,100, 0.7192,0.1661,0.0970, 6000],
@@ -51,6 +59,13 @@
             [120,110,100, 0.3313,0.1815,0.5861, 6000],
             [120,110,100, 0.1373,0.9311,0.0895, 4500],
             [120,110,100, 0.5746,0.0108,0.0098, 5000],
+            [130, 48,125, 0.8335,0.4261,0.0948, 2500],
+            [145, 98,148, 0.0122,0.5401,0.5035, 4767],
+            [ 81,138, 79, 0.3287,0.6423,0.1725, 1981],
+            [ 74, 96, 45, 0.2928,0.1673,0.2134, 15000],
+            [ 98, 54,119, 0.7532,0.4436,0.0664, 1700],
+            [  7, 96,110, 0.8265,0.6391,0.1901, 1200],
+            [ 96,136, 34, 0.9652,0.0788,0.1085, 3000],
         ];
 
         // Globals
@@ -73,6 +88,14 @@
 
         function keyup(event) {
             if (event.key=="R") params.showRods = !params.showRods;
+            else if (event.key=="P") params.showParams = !params.showParams;
+            else if (event.key=="L") {
+                let str='[';
+                for(let i=0;i<3;i++)str+=params.lengths[i]+", ";
+                for(let i=0;i<3;i++)str+=params.speeds[i]+', ';
+                str+=params.traceLength+'],';
+                console.log(str);
+            }
             else if (event.key==" ") {
                 params.speeds.forEach( function(item,index,arr) {
                     arr[index]=Math.random();
@@ -82,9 +105,19 @@
                 } )
                 params.traceLength=Math.floor(6000*Math.random());
             }
-            else if (event.key>="a" && event.key<="r") {
+            else if (event.key>="a" && event.key<="z") {
                 let c = event.key.charCodeAt(0)-97;
                 fillParams(paramsArray[c]);
+            }
+            else if (event.key=="ArrowLeft") {
+                paramsIndex = paramsIndex-1;
+                if (paramsIndex<0) paramsIndex=paramsArray.length-1;
+                fillParams(paramsArray[paramsIndex]);
+            }
+            else if (event.key=="ArrowRight") {
+                paramsIndex = paramsIndex+1;
+                if (paramsIndex>=paramsArray.length) paramsIndex=0;
+                fillParams(paramsArray[paramsIndex]);
             }
         }
 
@@ -153,12 +186,14 @@
             ctx.stroke();
 
             // Write params
-            ctx.beginPath();
-            ctx.fillStyle="black";
-            ctx.font="16px Arial";
-            let iy=0, dy=20;
-            params.speeds.forEach( item => ctx.fillText(item,10,dy+15*++iy));
-            ctx.fillText(params.traceLength,10,dy+15*++iy);
+            if (params.showParams) {
+                ctx.beginPath();
+                ctx.fillStyle="white";
+                ctx.font="16px Arial";
+                let iy=0, dy=20;
+                params.speeds.forEach( item => ctx.fillText(item,10,dy+15*++iy));
+                ctx.fillText(params.traceLength,10,dy+15*++iy);
+            }
 
             // Draw rods
             if (params.showRods) {

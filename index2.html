@@ -13,36 +13,33 @@
     <script>
         // Adjustable parameters
         const params = {
-            rod1Length: 120,    // Length of first rod
-            rod2Length: 110,     // Length of second rod
-            rod3Length: 100,     // Length of second rod
-            rod1Speed: 0.15,    // Rotation speed of first rod
+            rod1Length: 170,    // Length of first rod
+            rod2Length: 160,     // Length of second rod
+            rod1Speed: 0.10,    // Rotation speed of first rod
             rod2Speed: 0.01415926535,    // Rotation speed of second rod
-            rod3Speed: 0.097,    // Rotation speed of first rod
-            traceLength: 6000,   // Number of points to keep in the trace
+            traceLength: 6600,   // Number of points to keep in the trace
             canvasSize: 700,     // Canvas width and height
             pointsPerFrame: 100,  // number of points added for the next frame (speed of animation)
             showRods: false
         };
 
         const paramsArray = [
-            [0.7192, 0.1661, 0.0970, 6000],
-            [0.5859, 0.3908, 0.0970, 4000],
-            [0.9491, 0.0943, 0.5702, 4000],
-            [0.8430, 0.2536, 0.4066, 4000],
-            [0.8293, 0.3958, 0.3557, 4500],
-            [0.0825, 0.8394, 0.1274, 4888],
-            [0.1869, 0.2829, 0.0020, 5500],
-            [0.1257, 0.2531, 0.8203, 5000],
-            [0.7560, 0.0587, 0.4183, 3629],
-            [0.6715, 0.5785, 0.7181, 6000],
-            [0.1738, 0.8812, 0.5799, 5000],
-            [0.0459, 0.0303, 0.7239, 6000],
-            [0.4906, 0.1704, 0.9403, 3700],
-            [0.5182, 0.2690, 0.6720, 6000],
-            [0.3313, 0.1815, 0.5861, 6000],
-            [0.1373, 0.9311, 0.0895, 4500],
-            [0.5746, 0.0108, 0.0098, 5000],
+            [170, 160, 0.10, 0.01415926535, 6600, 100],
+            [170, 160, 0.67, 0.273, 1887, 100],
+            [170, 160, 0.9726, 0.0344, 1538, 100],
+            [170, 160, 0.075, 0.78, 1200, 100],
+            [170, 160, 0.1319, 0.7065, 1441, 100],
+            [170, 160, 0.1656, 0.9744, 835, 100],
+            [170, 160, 0.4644, 0.7896, 1620, 100],
+            [170, 160, 0.0444, 0.6288, 1966, 100],
+            [170, 160, 0.8064, 0.9678, 839, 100],
+            [170, 160, 0.2356, 0.8373, 770, 100],
+            [170, 160, 0.6333, 0.5845, 1220, 100],
+            [170, 160, 0.2053, 0.8463, 814, 100],
+            [170, 160, 0.7657, 0.7815, 800, 100],
+            [170, 160, 0.4189, 0.4611, 1672, 100],
+            [170, 160, 0.9502, 0.1238, 1765, 100],
+            [170, 160, 0.5607, 0.5619, 1998, 100],
         ];
 
         // Setup canvas
@@ -59,28 +56,42 @@
         let tracePoints = [];
         let angle1 = 0;
         let angle2 = 0;
-        let angle3 = 0;
 
         function keyup(event) {
-            if (event.key=="R") params.showRods = !params.showRods;
-            else if (event.key==" ") {
+            console.log("key: "+event.key);
+            if (event.key=="r") params.showRods = !params.showRods;
+            if (event.key=="0") fillParams(paramsArray[0]);
+            if (event.key=="1") fillParams(paramsArray[1]);
+            if (event.key=="2") fillParams(paramsArray[2]);
+            if (event.key=="3") fillParams(paramsArray[3]);
+            if (event.key=="4") fillParams(paramsArray[4]);
+            if (event.key=="5") fillParams(paramsArray[5]);
+            if (event.key=="6") fillParams(paramsArray[6]);
+            if (event.key=="7") fillParams(paramsArray[7]);
+            if (event.key=="8") fillParams(paramsArray[8]);
+            if (event.key=="9") fillParams(paramsArray[9]);
+            if (event.key=="a") fillParams(paramsArray[10]);
+            if (event.key=="b") fillParams(paramsArray[11]);
+            if (event.key=="c") fillParams(paramsArray[12]);
+            if (event.key=="d") fillParams(paramsArray[13]);
+            if (event.key=="e") fillParams(paramsArray[14]);
+            if (event.key=="f") fillParams(paramsArray[15]);
+            if (event.key==" ") {
                 params.rod1Speed=Math.random();
                 params.rod2Speed=Math.random();
-                params.rod3Speed=Math.random();
-                params.traceLength=Math.floor(6000*Math.random());
-            }
-            else if (event.key>="a" && event.key<="q") {
-                let c = event.key.charCodeAt(0)-97;
-                fillParams(paramsArray[c]);
+                params.traceLength=Math.floor(2000*Math.random());
             }
         }
 
         function fillParams(p) {
+            console.log(p);
             tracePoints=[];
-            params.rod1Speed=p[0];
-            params.rod2Speed=p[1];
-            params.rod3Speed=p[2];
-            params.traceLength=p[3];
+            params.rod1Length=p[0];
+            params.rod2Length=p[1];
+            params.rod1Speed=p[2];
+            params.rod2Speed=p[3];
+            params.traceLength=p[4];
+            params.pointsPerFrame=p[5];
         }
 
         function animate() {
@@ -88,7 +99,7 @@
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            var x1,y1,x2,y2,x3,y3;
+            var x1,x2,y1,y2;
 
             for (let i=0; i<params.pointsPerFrame; i++) {
 
@@ -97,11 +108,9 @@
                 y1 = centerY + Math.sin(angle1) * params.rod1Length;
                 x2 = x1 + Math.cos(angle2) * params.rod2Length;
                 y2 = y1 + Math.sin(angle2) * params.rod2Length;
-                x3 = x2 + Math.cos(angle3) * params.rod3Length;
-                y3 = y2 + Math.sin(angle3) * params.rod3Length;
 
                 // Add new trace point
-                tracePoints.push({x: x3, y: y3});
+                tracePoints.push({x: x2, y: y2});
                 while (tracePoints.length > params.traceLength && tracePoints.length > params.pointsPerFrame) {
                     tracePoints.shift();
                 }
@@ -109,7 +118,6 @@
                 // Update angles
                 angle1 += params.rod1Speed;
                 angle2 += params.rod2Speed;
-                angle3 += params.rod3Speed;
             }
 
             // Draw trace
@@ -130,10 +138,9 @@
             ctx.beginPath();
             ctx.fillStyle="black";
             ctx.font="16px Arial";
-            ctx.fillText(params.rod1Speed,550,20);
-            ctx.fillText(params.rod2Speed,550,35);
-            ctx.fillText(params.rod3Speed,550,50);
-            ctx.fillText(params.traceLength,550,65);
+            ctx.fillText(params.rod1Speed,550,40);
+            ctx.fillText(params.rod2Speed,550,60);
+            ctx.fillText(params.traceLength,550,80);
 
             // Draw rods
             if (params.showRods) {
@@ -143,7 +150,6 @@
                 ctx.moveTo(centerX, centerY);
                 ctx.lineTo(x1, y1);
                 ctx.lineTo(x2, y2);
-                ctx.lineTo(x3, y3);
                 ctx.stroke();
             }
 
