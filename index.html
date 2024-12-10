@@ -96,6 +96,8 @@ const params3Array = [
     [  7, 96,110, 0.8265,0.6391,0.1901, 1200],
     [ 96,136, 34, 0.9652,0.0788,0.1085, 3000],
     [102, 51,138, -0.9348,0.1634,-0.1216, 5153],
+    [136, 95,149, -0.1504,-0.9485,0.5485, 1512],
+    [ 49,119,141, -0.6750,0.3752,-0.6373, 2769],
 ];
 
 const paramsArray = [];
@@ -136,7 +138,7 @@ function keyup(event) {
         console.log(str);
     }
     else if (event.key=="Enter") {
-        params.dim=Math.floor(2+6*Math.random());
+        params.dim=Math.floor(2+3*Math.random());
         for (let i=0;i<params.dim;i++) {
             params.speeds[i]=2*Math.random()-1;
         }
