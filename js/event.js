@@ -1,41 +1,24 @@
 function keyup(event) {
-    // pendulum display
-    if (event.key=="P") params.showRods = !params.showRods;
-    // values display
-    else if (event.key=="V") params.showParams = !params.showParams;
-    // turtle speed
-    else if (event.key=="T") params.slowAnim = !params.slowAnim;
+    // rods display
+    if (event.key=="r") showRods = !showRods;
+    // parameters display
+    else if (event.key=="p") showParams = !showParams;
+    // serial numbers display
+    else if (event.key=="s") showSerial = !showSerial;
+    // animation slow speed
+    else if (event.key=="a") slowAnim = !slowAnim;
     // break
     else if (event.key==" ") {
-        params.runAnim = !params.runAnim;
-        if (params.runAnim) requestAnimationFrame(animate);
-    }
-    // log
-    else if (event.key=="L") {
-        let str='['+params.dim+', ';
-        for(let i=0;i<params.dim;i++) str+=params.initLengths[i]+", ";
-        for(let i=0;i<params.dim;i++) str+=params.speeds[i]+', ';
-        str+=params.traceLength+'],';
-        console.log(str);
+        runAnim = !runAnim;
+        if (runAnim) requestAnimationFrame(animate);
     }
     else if (event.key=="Enter") {
-        params.dim=Math.floor(2+3*Math.random());
-        for (let i=0;i<params.dim;i++) {
-            params.speeds[i]=2*Math.random()-1;
-        }
-        for (let i=0;i<params.dim;i++) {
-            params.initLengths[i]=Math.floor(150*Math.random());
-        }
-        params.traceLength=Math.floor(6000*Math.random());
-    }
-    else if (event.key>="a" && event.key<="z") {
-        let c = event.key.charCodeAt(0)-97;
-        fillParams(paramsArray[c]);
+        clearScreen();
+        ps.forEach( p=>p.randomize() );
     }
     else if (event.key>="0" && event.key<="9") {
         let c = event.key.charCodeAt(0)-48;
-        if (c>=params.dim) c=params.dim-1;
-        params.selectedRod=c;
+        ps[c].log();
     }
     else if (event.key=="Q") {
         params.initLengths[params.selectedRod] -= 10;
@@ -70,13 +53,13 @@ function keyup(event) {
         if (params.speeds[params.selectedRod]>100) params.speeds[params.selectedRod]=100;
     }
     else if (event.key=="ArrowLeft") {
-        paramsIndex = paramsIndex-1;
-        if (paramsIndex<0) paramsIndex=paramsArray.length-1;
-        fillParams(paramsArray[paramsIndex]);
+        paramsIndex = paramsIndex-8;
+        if (paramsIndex<0) paramsIndex=paramsArray.length-8;
+        get8pendulums();
     }
     else if (event.key=="ArrowRight") {
-        paramsIndex = paramsIndex+1;
-        if (paramsIndex>=paramsArray.length) paramsIndex=0;
-        fillParams(paramsArray[paramsIndex]);
+        paramsIndex = paramsIndex+8;
+        if (paramsIndex>=paramsArray.length-8) paramsIndex=0;
+        get8pendulums();
     }
 }

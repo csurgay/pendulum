@@ -1,5 +1,6 @@
 class Pendulum {
-    constructor(x,y,r,dim) {
+    constructor(serial,x,y,r,dim) {
+        this.serial=serial;
         this.x=x;
         this.y=y;
         this.dim=dim;                               // number of rods
@@ -8,19 +9,17 @@ class Pendulum {
         this.traceLength=6000;                      // points to keep trace
         this.canvasSize=r;                          // canvas width and height
         this.pointsPerFrame=100;                    // animation speed
-        this.showRods=false;                        // show rods on/off
-        this.showParams=true;                       // show params on/off
-        this.runAnim=true;                          // animation on/off
-        this.slowAnim=false;                        // slower animation
         this.selectedRod=0;                         // rod to adjust length/speed
         this.tracePoints=[];                        // the whole path it draws
         this.angles=[0,0,0,0,0,0,0];                // starting angles of rods
         this.lengths=[10,10,10,10,10,10,10];        // real length of rods in canvas
+        this.xs=[0,0,0,0,0,0,0];                    // endpoints of the rods
+        this.ys=[0,0,0,0,0,0,0];
 
     }
 
     calculate() {
-        var xs=[0,1,2,3,4,5,6],ys=[0,1,2,3,4,5,6],xEnd,yEnd;
+        let xEnd,yEnd;
         
         // Update rod lengths for canvas size
         let sum = 0; 
@@ -29,17 +28,15 @@ class Pendulum {
             this.lengths[i]=Math.floor(this.initLengths[i]*this.canvasSize/2/sum);
         }
 
-        for (let i=0; i<(this.slowAnim?1:this.pointsPerFrame); i++) {
+        for (let i=0; i<(slowAnim?1:this.pointsPerFrame); i++) {
 
             // Calculate rod endpoints
-//            xs[0] = centerX + Math.cos(this.angles[0]) * this.lengths[0];
-//            ys[0] = centerY + Math.sin(this.angles[0]) * this.lengths[0];
-            xs[0] = Math.cos(this.angles[0]) * this.lengths[0];
-            ys[0] = Math.sin(this.angles[0]) * this.lengths[0];
+            this.xs[0] = Math.cos(this.angles[0]) * this.lengths[0];
+            this.ys[0] = Math.sin(this.angles[0]) * this.lengths[0];
             for (let i=1; i<this.dim; i++) {
-                xs[i] = xs[i-1] + Math.cos(this.angles[i]) * this.lengths[i];
-                ys[i] = ys[i-1] + Math.sin(this.angles[i]) * this.lengths[i];
-                xEnd=xs[i]; yEnd=ys[i];
+                this.xs[i] = this.xs[i-1] + Math.cos(this.angles[i]) * this.lengths[i];
+                this.ys[i] = this.ys[i-1] + Math.sin(this.angles[i]) * this.lengths[i];
+                xEnd=this.xs[i]; yEnd=this.ys[i];
             }
 
             // Add new trace point
@@ -70,45 +67,76 @@ class Pendulum {
         }
         ctx.stroke();
 
+        // Draw serial number
+        if (showSerial) {
+            ctx.font="16px Arial";
+            ctx.fillStyle="white";
+            ctx.fillText(this.serial,this.x,this.y);
+        }
+
         // Draw parameters
-        if (this.showParams) {
+        if (showParams) {
             ctx.font="16px Arial";
             let iy=0, dy=20;
             ctx.fillStyle="white";
-            ctx.fillText(paramsIndex,10,dy+15*++iy);
+            ctx.fillText(this.dim,this.x+10,this.y+dy+15*++iy);
             for (let i=0; i<this.dim; i++) {
-                ctx.fillStyle=(i==this.selectedRod?"red":"white");
-                ctx.fillText(this.initLengths[i]+' '+this.speeds[i],10,dy+15*++iy);
+                ctx.fillStyle=(i==this.selectedRod?"white":"white");
+                ctx.fillText(this.initLengths[i]+', '+this.speeds[i].toFixed(4),this.x+10,this.y+dy+15*++iy);
             }
             ctx.fillStyle="white";
-            ctx.fillText(this.traceLength,10,dy+15*++iy);
+            ctx.fillText(this.traceLength,this.x+10,this.y+dy+15*++iy);
         }
 
         // Draw rods
-        if (this.showRods) {
+        if (showRods) {
             ctx.beginPath();
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 2;
-            ctx.moveTo(centerX, centerY);
+            ctx.moveTo(this.x, this.y);
             for (let i=0;i<this.dim;i++) {
-                ctx.lineTo(xs[i],ys[i]);
+                ctx.lineTo(this.x+this.xs[i],this.y+this.ys[i]);
             }
             ctx.stroke();
         }
     }
+
     fillParams(p) {
         this.tracePoints=[];
-        this.dim=p[0];
+        this.serial=p[0];
+        this.dim=p[1];
         for (let i=0;i<this.dim;i++) {
-            this.initLengths[i]=p[1][i];
+            this.angles[i]=p[2][i];
         }
         for (let i=0;i<this.dim;i++) {
-            this.speeds[i]=p[2][i];
+            this.initLengths[i]=p[3][i];
         }
-        this.traceLength=p[3];
-        // reset angles
         for (let i=0;i<this.dim;i++) {
-            this.angles[i]=0;
+            this.speeds[i]=p[4][i];
         }
+        this.traceLength=p[5];
+    }
+
+    randomize() {
+        this.dim=Math.floor(2+3*Math.random());
+        for (let i=0;i<this.dim;i++) {
+            this.speeds[i]=2*Math.random()-1;
+        }
+        for (let i=0;i<this.dim;i++) {
+            this.initLengths[i]=Math.floor(150*Math.random());
+        }
+        this.traceLength=Math.floor(6000*Math.random());
+    }
+
+    log() {
+        let str='['+this.dim+', [';
+        for(let i=0;i<this.dim;i++) str+=(i==0?"":", ")+this.angles[i];
+        str+='], [';
+        for(let i=0;i<this.dim;i++) str+=(i==0?"":", ")+this.initLengths[i];
+        str+='], [';
+        for(let i=0;i<this.dim;i++) str+=(i==0?"":", ")+this.speeds[i];
+        str+='], ';
+        str+=this.traceLength+'],';
+        console.log(str);
     }
 }
