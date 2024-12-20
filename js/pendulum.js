@@ -1,6 +1,7 @@
 class Pendulum {
-    constructor(serial,x,y,r,dim) {
+    constructor(serial,color,x,y,r,dim) {
         this.serial=serial;
+        this.color=color;
         this.x=x;
         this.y=y;
         this.dim=dim;                               // number of rods
@@ -55,8 +56,9 @@ class Pendulum {
     draw() {
         // Draw trace
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(200, 0, 0, 0.5)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = this.color;
+        ctx.globalAlpha = opacity;
+        ctx.lineWidth = lineWidth;
         for (let i = 0; i < this.traceLength; i++) if (i<this.tracePoints.length) {
             const point = this.tracePoints[i];
             if (i === 0) {

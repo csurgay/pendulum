@@ -7,6 +7,8 @@ function keyup(event) {
     else if (event.key=="s") showSerial = !showSerial;
     // animation slow speed
     else if (event.key=="a") slowAnim = !slowAnim;
+    // randomize colors
+    else if (event.key=="c") randomizeColors();
     // break
     else if (event.key==" ") {
         runAnim = !runAnim;
@@ -14,6 +16,7 @@ function keyup(event) {
     }
     else if (event.key=="Enter") {
         clearScreen();
+        randomizeColors();
         ps.forEach( p=>p.randomize() );
     }
     else if (event.key>="0" && event.key<="9") {
@@ -53,13 +56,15 @@ function keyup(event) {
         if (params.speeds[params.selectedRod]>100) params.speeds[params.selectedRod]=100;
     }
     else if (event.key=="ArrowLeft") {
-        paramsIndex = paramsIndex-8;
-        if (paramsIndex<0) paramsIndex=paramsArray.length-8;
-        get8pendulums();
+        paramsIndex = paramsIndex-(mode=="8"?8:1);
+        if (paramsIndex<0) paramsIndex=paramsArray.length-(mode=="8"?8:1);
+        randomizeColors();
+        getpendulums();
     }
     else if (event.key=="ArrowRight") {
-        paramsIndex = paramsIndex+8;
-        if (paramsIndex>=paramsArray.length-8) paramsIndex=0;
-        get8pendulums();
+        paramsIndex = paramsIndex+(mode=="8"?8:1);
+        if (paramsIndex>=paramsArray.length-(mode=="8"?8:1)) paramsIndex=0;
+        randomizeColors();
+        getpendulums();
     }
 }
