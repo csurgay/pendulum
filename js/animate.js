@@ -4,9 +4,7 @@ function animate() {
 
     ps.forEach( p => { p.calculate(); p.draw(); })
     if (Date.now()-time>timeout) {
-        paramsIndex+=1; if (paramsIndex>=paramsArray.length-1) paramsIndex=0;
-        getpendulums();
-        randomizeColors();
+        nextPendulums();
         time=Date.now();
     }
 
@@ -56,4 +54,18 @@ function shuffleArray(arr) {
     arr.sort(function (a, b) {
       return Math.random() - 0.5;
     });
+}
+
+function prevPendulums() {
+    paramsIndex = paramsIndex-(mode=="8"?8:1);
+    if (paramsIndex<0) paramsIndex=paramsArray.length-(mode=="8"?8:1);
+    randomizeColors();
+    getpendulums();
+}
+
+function nextPendulums() {
+    paramsIndex = paramsIndex+(mode=="8"?8:1);
+    if (paramsIndex>=paramsArray.length-(mode=="8"?8:1)) paramsIndex=0;
+    randomizeColors();
+    getpendulums();
 }

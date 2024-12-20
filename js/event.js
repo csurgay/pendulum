@@ -56,15 +56,9 @@ function keyup(event) {
         if (params.speeds[params.selectedRod]>100) params.speeds[params.selectedRod]=100;
     }
     else if (event.key=="ArrowLeft") {
-        paramsIndex = paramsIndex-(mode=="8"?8:1);
-        if (paramsIndex<0) paramsIndex=paramsArray.length-(mode=="8"?8:1);
-        randomizeColors();
-        getpendulums();
+        prevPendulums();
     }
     else if (event.key=="ArrowRight") {
-        paramsIndex = paramsIndex+(mode=="8"?8:1);
-        if (paramsIndex>=paramsArray.length-(mode=="8"?8:1)) paramsIndex=0;
-        randomizeColors();
-        getpendulums();
+        nextPendulums();
     }
 }
