@@ -8,7 +8,7 @@ class Pendulum {
         this.initLengths=[10,10,10,10,10,10,10],    // length of rods
         this.speeds=[0.1,0.1,0.1,0.1,0.1,0.1,0.1],  // sotation speed rods
         this.traceLength=6000;                      // points to keep trace
-        this.canvasSize=r;                          // canvas width and height
+        this.radius=r;                          // canvas width and height
         this.pointsPerFrame=100;                    // animation speed
         this.selectedRod=0;                         // rod to adjust length/speed
         this.tracePoints=[];                        // the whole path it draws
@@ -26,7 +26,7 @@ class Pendulum {
         let sum = 0; 
         for (let i=0;i<this.dim;i++) sum+=this.initLengths[i];
         for (let i=0;i<this.dim;i++) {
-            this.lengths[i]=Math.floor(this.initLengths[i]*this.canvasSize/2/sum);
+            this.lengths[i]=Math.floor(this.initLengths[i]*this.radius/2/sum);
         }
 
         for (let i=0; i<(slowAnim?1:this.pointsPerFrame); i++) {
@@ -104,7 +104,7 @@ class Pendulum {
     }
 
     fillParams(p) {
-        this.tracePoints=[];
+        //this.tracePoints=[];
         this.serial=p[0];
         this.dim=p[1];
         for (let i=0;i<this.dim;i++) {

@@ -1,6 +1,7 @@
 function animate() {
     // Clear canvas
     clearScreen();
+    sizePendulums();
 
     ps.forEach( p => { p.calculate(); p.draw(); })
     if (Date.now()-time>timeout) {
@@ -13,13 +14,23 @@ function animate() {
 // create 1 or 8 new pendulums
 function creatependulums() {
     for (let i=0; i<(mode=="8"?8:1); i++) {
+        ps.push( new Pendulum(i,"red",100,100,75,3) );
+    }
+    sizePendulums();
+    randomizeColors();
+}
+
+// calc sizes and positions
+function sizePendulums() {
+    for (let i=0; i<(mode=="8"?8:1); i++) {
         let x=i<4?i:i-4;
         let y=i<4?0:1;
         let d=Math.floor(canvas.width/4.1);
         if (mode=="1") d=Math.min(canvas.height,canvas.width);
-        ps.push( new Pendulum(i,"red",x*d+d/2,y*d+d/2,d,3) );
+        ps[i].x=x*d+d/2;
+        ps[i].y=y*d+d/2;
+        ps[i].radius=d;
     }
-    randomizeColors();
 }
 
 // randomize pendulum colors
